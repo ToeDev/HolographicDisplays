@@ -51,6 +51,9 @@ public class InfoCommand extends HologramSubCommand {
 		
 		sender.sendMessage("");
 		sender.sendMessage(Strings.formatTitle("Lines of the hologram '" + hologram.getName() + "'"));
+
+		sender.sendMessage(Colors.SECONDARY + "Viewing Region(s): " + "Any Region");
+
 		int index = 0;
 		
 		for (CraftHologramLine line : hologram.getLinesUnsafe()) {
