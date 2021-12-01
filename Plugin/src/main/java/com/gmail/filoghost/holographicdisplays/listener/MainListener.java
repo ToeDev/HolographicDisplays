@@ -14,13 +14,15 @@
  */
 package com.gmail.filoghost.holographicdisplays.listener;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.GameMode;
+import com.gmail.filoghost.holographicdisplays.object.*;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -32,6 +34,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -46,10 +49,6 @@ import com.gmail.filoghost.holographicdisplays.disk.Configuration;
 import com.gmail.filoghost.holographicdisplays.nms.interfaces.ItemPickupManager;
 import com.gmail.filoghost.holographicdisplays.nms.interfaces.NMSManager;
 import com.gmail.filoghost.holographicdisplays.nms.interfaces.entity.NMSEntityBase;
-import com.gmail.filoghost.holographicdisplays.object.CraftHologram;
-import com.gmail.filoghost.holographicdisplays.object.NamedHologramManager;
-import com.gmail.filoghost.holographicdisplays.object.PluginHologram;
-import com.gmail.filoghost.holographicdisplays.object.PluginHologramManager;
 import com.gmail.filoghost.holographicdisplays.object.line.CraftTouchSlimeLine;
 import com.gmail.filoghost.holographicdisplays.util.ConsoleLogger;
 
@@ -186,5 +185,40 @@ public class MainListener implements Listener, ItemPickupManager {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		anticlickSpam.remove(event.getPlayer());
+	}
+
+	@EventHandler
+	public void onRegionChange(PlayerMoveEvent event) {
+		RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+		Set<ProtectedRegion> fromRegionSet = query.getApplicableRegions(BukkitAdapter.adapt(event.getFrom())).getRegions();
+		Set<ProtectedRegion> toRegionSet = query.getApplicableRegions(BukkitAdapter.adapt(event.getTo())).getRegions();
+		if(fromRegionSet.containsAll(toRegionSet) && toRegionSet.containsAll(fromRegionSet)) {
+			return;
+		}
+		Player player = event.getPlayer();
+		for(CraftHologram hologram : NamedHologramManager.getHolograms()) {
+			List<String> hologramsRegions = hologram.getRegions();
+			CraftVisibilityManager visibilityManager = hologram.getVisibilityManager();
+			if(!visibilityManager.isVisibleByDefault() && hologramsRegions.size() > 0) {
+				List<String> regionsIn = new ArrayList<>();
+				for(ProtectedRegion region : toRegionSet) {
+					regionsIn.add(region.getId());
+				}
+				if(regionsIn.isEmpty()) {
+					regionsIn.add("__global__");
+				}
+				for(String regionIn : regionsIn) {
+					if(hologramsRegions.contains(regionIn)) {
+						if(!visibilityManager.isVisibleTo(player)) {
+							visibilityManager.showTo(player);
+						}
+						break;
+					}
+					if(visibilityManager.isVisibleTo(player)) {
+						visibilityManager.hideTo(player);
+					}
+				}
+			}
+		}
 	}
 }

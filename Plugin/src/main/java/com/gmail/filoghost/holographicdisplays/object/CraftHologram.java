@@ -43,6 +43,9 @@ public class CraftHologram implements Hologram {
 	
 	// The entities that represent lines.
 	private final List<CraftHologramLine> lines;
+
+	//The viewable regions
+	private final List<String> regions;
 	
 	private CraftVisibilityManager visibilityManager;
 	private boolean allowPlaceholders;
@@ -52,7 +55,8 @@ public class CraftHologram implements Hologram {
 	public CraftHologram(Location location) {
 		Validator.notNull(location, "location");
 		updateLocation(location.getWorld(), location.getX(), location.getY(), location.getZ());
-		
+
+		regions = new ArrayList<>();
 		lines = new ArrayList<>();
 		allowPlaceholders = false;
 		creationTimestamp = System.currentTimeMillis();
@@ -350,6 +354,18 @@ public class CraftHologram implements Hologram {
 	@Override
 	public String toString() {
 		return "CraftHologram [world=" + world + ", x=" + x + ", y=" + y + ", z=" + z + ", lines=" + lines + ", deleted=" + deleted + "]";
+	}
+
+	public void addRegion(String region) {
+		regions.add(region);
+	}
+
+	public void removeRegion(String region) {
+		regions.remove(region);
+	}
+
+	public List<String> getRegions() {
+		return this.regions;
 	}
 
 	/**

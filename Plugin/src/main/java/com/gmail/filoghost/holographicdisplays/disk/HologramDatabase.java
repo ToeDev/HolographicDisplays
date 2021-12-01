@@ -60,6 +60,7 @@ public class HologramDatabase {
 		
 		List<String> lines = configSection.getStringList("lines");
 		String locationString = configSection.getString("location");
+		List<String> regions = configSection.getStringList("regions");
 		
 		if (lines == null || locationString == null || lines.size() == 0) {
 			throw new HologramNotFoundException();
@@ -71,6 +72,13 @@ public class HologramDatabase {
 
 		for (String line : lines) {
 			hologram.getLinesUnsafe().add(HologramLineParser.parseLine(hologram, line, false));
+		}
+
+		if(regions.size() != 0) {
+			for(String region : regions) {
+				hologram.addRegion(region);
+			}
+			hologram.getVisibilityManager().setVisibleByDefault(false);
 		}
 		
 		return hologram;
@@ -93,6 +101,7 @@ public class HologramDatabase {
 		ConfigurationSection hologramSection = getOrCreateSection(hologram.getName());		
 		hologramSection.set("location", LocationSerializer.locationToString(hologram.getLocation()));
 		hologramSection.set("lines", serializedLines);
+		hologramSection.set("regions", hologram.getRegions());
 	}
 	
 	public static Set<String> getHolograms() {
