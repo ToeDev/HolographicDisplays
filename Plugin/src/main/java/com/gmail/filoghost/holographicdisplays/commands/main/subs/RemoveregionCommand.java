@@ -44,6 +44,7 @@ public class RemoveregionCommand extends HologramSubCommand {
 
         if(hologram.getRegions().size() == 0) {
             hologram.getVisibilityManager().setVisibleByDefault(true);
+            hologram.getVisibilityManager().resetVisibilityAll();
         }
 
         HologramDatabase.saveHologram(hologram);
