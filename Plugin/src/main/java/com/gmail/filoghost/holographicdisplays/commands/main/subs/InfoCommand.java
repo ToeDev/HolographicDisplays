@@ -17,6 +17,7 @@ package com.gmail.filoghost.holographicdisplays.commands.main.subs;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import com.gmail.filoghost.holographicdisplays.commands.Colors;
 import com.gmail.filoghost.holographicdisplays.commands.CommandValidator;
@@ -52,7 +53,18 @@ public class InfoCommand extends HologramSubCommand {
 		sender.sendMessage("");
 		sender.sendMessage(Strings.formatTitle("Lines of the hologram '" + hologram.getName() + "'"));
 
-		sender.sendMessage(Colors.SECONDARY + "Viewing Region(s): " + (hologram.getRegions().size() != 0 ? hologram.getRegions() : "Not Applicable"));
+		String regions = "";
+		if(hologram.getRegions().size() != 0) {
+			int i = hologram.getRegions().size();
+			for(String region : hologram.getRegions()) {
+				i--;
+				regions.concat(ChatColor.GOLD + region);
+				if(i >= 1) regions.concat(", ");
+			}
+		} else {
+			regions.concat("Not Applicable");
+		}
+		sender.sendMessage(Colors.SECONDARY + "Viewing Region(s): " + regions);
 
 		int index = 0;
 		

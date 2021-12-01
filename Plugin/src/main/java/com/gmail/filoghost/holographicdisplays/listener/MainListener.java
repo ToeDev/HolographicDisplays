@@ -204,9 +204,7 @@ public class MainListener implements Listener, ItemPickupManager {
 				for(ProtectedRegion region : toRegionSet) {
 					regionsIn.add(region.getId());
 				}
-				if(regionsIn.isEmpty()) {
-					regionsIn.add("__global__");
-				}
+				regionsIn.add("__global__");
 				for(String regionIn : regionsIn) {
 					if(hologramsRegions.contains(regionIn)) {
 						if(!visibilityManager.isVisibleTo(player)) {
